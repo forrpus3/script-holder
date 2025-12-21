@@ -1,0 +1,477 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+local character, humanoid, rootPart
+
+local function bindCharacter(char)
+	character = char
+	humanoid = char:WaitForChild("Humanoid")
+	rootPart = char:WaitForChild("HumanoidRootPart")
+end
+
+bindCharacter(player.Character or player.CharacterAdded:Wait())
+player.CharacterAdded:Connect(bindCharacter)
+
+local remotes = ReplicatedStorage:WaitForChild("Remotes")
+local promptPlayerLaunch = remotes:WaitForChild("promptPlayerLaunch")
+local topsFolder = workspace:WaitForChild("Tops")
+
+local TARGET_POSITION = Vector3.new(
+	415.53619384765625,
+	120.1265640258789,
+	-86.57369232177734
+)
+
+local FACING_POSITION = Vector3.new(
+	424.9053955078125,
+	112.94845581054688,
+	-72.63363647460938
+)
+
+local RESPAWN_POSITION = Vector3.new(
+	578.4635009765625,
+	118.49895477294922,
+	-147.76657104492188
+)
+
+local POSITION_RADIUS = 3
+local MOVE_RATE = 0.15
+local ROTATE_SPEED = 10
+local RESPAWN_RADIUS = 5
+local STUCK_CHECK_INTERVAL = 2
+local STUCK_DISTANCE_THRESHOLD = 2
+local UNSTUCK_OFFSET_DISTANCE = 8
+
+local isRunning = false
+local inPosition = false
+local initialFired = false
+local lastPosition = nil
+local lastMoveTime = 0
+local isUnstucking = false
+local isRecharging = false
+local noclipConnection = nil
+
+local healthConnection = nil
+local rotateConnection = nil
+local modelConnection = nil
+local energyConnection = nil
+
+-- GUI Setup
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 180, 0, 100)
+frame.Position = UDim2.new(0.5, -90, 0.1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = gui
+
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, 0, 0, 60)
+button.Position = UDim2.new(0, 0, 0, 0)
+button.Text = "START"
+button.BackgroundColor3 = Color3.fromRGB(220, 53, 69)
+button.TextColor3 = Color3.new(1,1,1)
+button.Font = Enum.Font.GothamBold
+button.TextSize = 18
+button.BorderSizePixel = 0
+button.Parent = frame
+
+local keyLabel = Instance.new("TextLabel")
+keyLabel.Size = UDim2.new(1, 0, 0, 35)
+keyLabel.Position = UDim2.new(0, 0, 0, 65)
+keyLabel.Text = "Press O to toggle"
+keyLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+keyLabel.TextColor3 = Color3.new(1, 1, 1)
+keyLabel.Font = Enum.Font.Gotham
+keyLabel.TextSize = 14
+keyLabel.BorderSizePixel = 0
+keyLabel.Parent = frame
+
+-- Helper Functions
+local function getCharacter()
+	local char = player.Character or player.CharacterAdded:Wait()
+	return char, char:WaitForChild("Humanoid")
+end
+
+local function getEnergyBar()
+	return player.PlayerGui
+		:WaitForChild("HUD")
+		:WaitForChild("Main HUD")
+		:WaitForChild("Energy")
+		:WaitForChild("Progress")
+end
+
+local function findNearbyProximityPrompt(position, maxDistance)
+	local closestPrompt = nil
+	local closestDistance = maxDistance
+	
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:IsA("ProximityPrompt") and obj.Enabled then
+			local parent = obj.Parent
+			local promptPos = nil
+			
+			if parent:IsA("BasePart") then
+				promptPos = parent.Position
+			elseif parent:IsA("Model") then
+				if parent.PrimaryPart then
+					promptPos = parent.PrimaryPart.Position
+				else
+					local part = parent:FindFirstChildWhichIsA("BasePart", true)
+					if part then
+						promptPos = part.Position
+					end
+				end
+			elseif parent:IsA("Attachment") then
+				promptPos = parent.WorldPosition
+			end
+			
+			if promptPos then
+				local dist = (promptPos - position).Magnitude
+				if dist < closestDistance then
+					closestDistance = dist
+					closestPrompt = obj
+				end
+			end
+		end
+	end
+	
+	return closestPrompt
+end
+
+local function fireProximityPrompt(prompt)
+	if prompt then
+		pcall(function()
+			if fireproximityprompt then
+				fireproximityprompt(prompt, 0, true)
+			elseif fire_proximity_prompt then
+				fire_proximity_prompt(prompt)
+			else
+				local oldHoldDuration = prompt.HoldDuration
+				prompt.HoldDuration = 0
+				prompt:InputHoldBegin()
+				task.wait(0.1)
+				prompt:InputHoldEnd()
+				prompt.HoldDuration = oldHoldDuration
+			end
+		end)
+	end
+end
+
+-- Energy Monitoring
+local function startEnergyMonitoring()
+	if energyConnection then
+		task.cancel(energyConnection)
+	end
+	
+	energyConnection = task.spawn(function()
+		local energyBar = getEnergyBar()
+		while isRunning do
+			local energy = energyBar.Size.X.Scale
+			if energy <= 0 then
+				isRecharging = true
+				
+				local reachedPosition = false
+				local maxAttempts = 60
+				
+				for i = 1, maxAttempts do
+					local _, hum = getCharacter()
+					local char = player.Character
+					
+					if char and char:FindFirstChild("HumanoidRootPart") then
+						local dist = (char.HumanoidRootPart.Position - RESPAWN_POSITION).Magnitude
+						
+						if dist <= RESPAWN_RADIUS then
+							reachedPosition = true
+							break
+						else
+							hum:MoveTo(RESPAWN_POSITION)
+						end
+					end
+					
+					task.wait(0.5)
+				end
+				
+				if reachedPosition then
+					task.wait(2)
+					
+					local char = player.Character
+					if char and char:FindFirstChild("HumanoidRootPart") then
+						local prompt = findNearbyProximityPrompt(RESPAWN_POSITION, 15)
+						if prompt then
+							print("Found proximity prompt, firing...")
+							fireProximityPrompt(prompt)
+							task.wait(2)
+						else
+							print("No proximity prompt found near respawn position")
+						end
+					end
+				else
+					print("Failed to reach respawn position")
+				end
+				
+				isRecharging = false
+			end
+			task.wait(10)
+		end
+	end)
+end
+
+-- Rotation/Facing
+local function startFacing()
+	if rotateConnection then rotateConnection:Disconnect() end
+
+	rotateConnection = RunService.RenderStepped:Connect(function(dt)
+		if not isRunning or not rootPart or isRecharging then return end
+
+		local dir = FACING_POSITION - rootPart.Position
+		local flat = Vector3.new(dir.X, 0, dir.Z)
+		if flat.Magnitude == 0 then return end
+
+		local targetCF = CFrame.new(rootPart.Position, rootPart.Position + flat)
+		local alpha = 1 - math.exp(-ROTATE_SPEED * dt)
+
+		rootPart.CFrame = rootPart.CFrame:Lerp(targetCF, alpha)
+	end)
+end
+
+local function stopFacing()
+	if rotateConnection then
+		rotateConnection:Disconnect()
+		rotateConnection = nil
+	end
+end
+
+-- Noclip
+local function startNoclip()
+	if noclipConnection then
+		noclipConnection:Disconnect()
+	end
+	
+	noclipConnection = RunService.Stepped:Connect(function()
+		if character then
+			for _, part in pairs(character:GetDescendants()) do
+				if part:IsA("BasePart") then
+					part.CanCollide = false
+				end
+			end
+		end
+	end)
+end
+
+local function stopNoclip()
+	if noclipConnection then
+		noclipConnection:Disconnect()
+		noclipConnection = nil
+	end
+	
+	if character then
+		for _, part in pairs(character:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = true
+			end
+		end
+	end
+end
+
+-- Health Monitoring
+local function startHealthMonitor(model)
+	if healthConnection then
+		healthConnection:Disconnect()
+	end
+
+	local firedLow = false
+	local firedZero = false
+
+	local function checkHealth()
+		if not isRunning then return end
+
+		local health = model:GetAttribute("Health")
+		if not health then return end
+
+		if inPosition and health < 80 and not firedLow then
+			firedLow = true
+			promptPlayerLaunch:FireServer(1, player.Character)
+		end
+
+		if health == 0 and not firedZero then
+			firedZero = true
+			promptPlayerLaunch:FireServer(1, player.Character)
+		end
+
+		if health >= 80 then
+			firedLow = false
+		end
+
+		if health > 0 then
+			firedZero = false
+		end
+
+		if not inPosition then
+			firedLow = false
+		end
+	end
+
+	checkHealth()
+	healthConnection = model:GetAttributeChangedSignal("Health"):Connect(checkHealth)
+end
+
+local function watchModels()
+	if modelConnection then
+		modelConnection:Disconnect()
+	end
+
+	local id = tostring(player.UserId)
+
+	local existing = topsFolder:FindFirstChild(id)
+	if existing then
+		startHealthMonitor(existing)
+	end
+
+	modelConnection = topsFolder.ChildAdded:Connect(function(child)
+		if child.Name == id then
+			startHealthMonitor(child)
+		end
+	end)
+end
+
+-- Movement System
+local function startMovement()
+	task.spawn(function()
+		while isRunning do
+			if humanoid and rootPart and not isUnstucking and not isRecharging then
+				local dist = (rootPart.Position - TARGET_POSITION).Magnitude
+
+				if dist > POSITION_RADIUS then
+					inPosition = false
+					humanoid:MoveTo(TARGET_POSITION)
+				else
+					inPosition = true
+
+					if not initialFired then
+						initialFired = true
+						promptPlayerLaunch:FireServer(1, player.Character)
+					end
+				end
+			end
+			task.wait(MOVE_RATE)
+		end
+	end)
+	
+	-- Stuck detection and recovery
+	task.spawn(function()
+		while isRunning do
+			task.wait(STUCK_CHECK_INTERVAL)
+			
+			if rootPart and humanoid and not isUnstucking and not isRecharging then
+				local currentPos = rootPart.Position
+				local currentTime = tick()
+				
+				if lastPosition then
+					local distMoved = (currentPos - lastPosition).Magnitude
+					local timeDiff = currentTime - lastMoveTime
+					
+					if distMoved < STUCK_DISTANCE_THRESHOLD and timeDiff >= STUCK_CHECK_INTERVAL then
+						local distToTarget = (currentPos - TARGET_POSITION).Magnitude
+						
+						if distToTarget > POSITION_RADIUS then
+							isUnstucking = true
+							
+							humanoid:Move(Vector3.new(0, 0, 0))
+							task.wait(0.1)
+							
+							local dirToTarget = (TARGET_POSITION - currentPos).Unit
+							local rightVector = Vector3.new(-dirToTarget.Z, 0, dirToTarget.X)
+							local leftVector = Vector3.new(dirToTarget.Z, 0, -dirToTarget.X)
+							local sideVector = math.random() > 0.5 and rightVector or leftVector
+							local sidePosition = currentPos + (sideVector * UNSTUCK_OFFSET_DISTANCE)
+							
+							humanoid:MoveTo(sidePosition)
+							task.wait(1.5)
+							
+							isUnstucking = false
+						end
+					end
+				end
+				
+				lastPosition = currentPos
+				lastMoveTime = currentTime
+			end
+		end
+	end)
+end
+
+-- Start/Stop Functions
+local function start()
+	if isRunning then return end
+	isRunning = true
+
+	button.Text = "STOP"
+	button.BackgroundColor3 = Color3.fromRGB(40, 167, 69)
+
+	startFacing()
+	startMovement()
+	watchModels()
+	startEnergyMonitoring()
+	startNoclip()
+end
+
+local function stop()
+	isRunning = false
+
+	button.Text = "START"
+	button.BackgroundColor3 = Color3.fromRGB(220, 53, 69)
+
+	stopFacing()
+	stopNoclip()
+	
+	lastPosition = nil
+	lastMoveTime = 0
+	isUnstucking = false
+	isRecharging = false
+
+	if healthConnection then
+		healthConnection:Disconnect()
+		healthConnection = nil
+	end
+
+	if modelConnection then
+		modelConnection:Disconnect()
+		modelConnection = nil
+	end
+	
+	if energyConnection then
+		task.cancel(energyConnection)
+		energyConnection = nil
+	end
+end
+
+-- Button Events
+button.MouseButton1Click:Connect(function()
+	if isRunning then
+		stop()
+	else
+		start()
+	end
+end)
+
+-- Keyboard Toggle
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	
+	if input.KeyCode == Enum.KeyCode.O then
+		if isRunning then
+			stop()
+		else
+			start()
+		end
+	end
+end)p
