@@ -474,4 +474,4 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			start()
 		end
 	end
-end)p
+end)
