@@ -1,0 +1,346 @@
+-- Load Rayfield Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Create Window
+local Window = Rayfield:CreateWindow({
+   Name = "Rayfield Script Hub",
+   LoadingTitle = "Rayfield Interface Suite",
+   LoadingSubtitle = "by Sirius",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "RayfieldHub"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+   KeySystem = false,
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
+   }
+})
+
+-- Create Tabs
+local ScriptsTab = Window:CreateTab("📜 Scripts", 4483362458)
+local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
+local MiscTab = Window:CreateTab("⚙️ Misc", 4483362458)
+
+-- Scripts Tab
+local ScriptsSection = ScriptsTab:CreateSection("Available Scripts")
+
+Rayfield:Notify({
+   Title = "Script Hub Loaded",
+   Content = "Rayfield Hub has been loaded successfully!",
+   Duration = 6.5,
+   Image = 4483362458,
+})
+
+-- TAT Script Button
+local TATButton = ScriptsTab:CreateButton({
+   Name = "Execute TAT ESP Script",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "Loading Script",
+         Content = "Loading TAT ESP & Teleport...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      
+      local success, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/dracoonmacoc/RealScripts/refs/heads/main/V2%20TAT'))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "Success!",
+            Content = "TAT Script executed successfully!",
+            Duration = 5,
+            Image = 4483362458,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Failed to load TAT Script: " .. tostring(err),
+            Duration = 5,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+local TATLabel = ScriptsTab:CreateLabel("TAT ESP - Paper & Meteor ESP with Teleportation")
+
+local ScriptsParagraph = ScriptsTab:CreateParagraph({
+   Title = "About TAT Script",
+   Content = "This script provides ESP highlighting for Papers (Green) and Meteors (Red), along with teleportation features and auto-farming capabilities."
+})
+
+-- Add more script buttons
+local ScriptsSection2 = ScriptsTab:CreateSection("More Scripts")
+
+-- Auto Farm Script Button
+local AutoFarmButton = ScriptsTab:CreateButton({
+   Name = "Execute Auto Farm for Level",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "Loading Script",
+         Content = "Loading Auto Farm for Level...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      
+      local success, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/forrpus3/scripts/refs/heads/main/auto%20farm%20for%20level'))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "Success!",
+            Content = "Auto Farm Script executed successfully!",
+            Duration = 5,
+            Image = 4483362458,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Failed to load Auto Farm Script: " .. tostring(err),
+            Duration = 5,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+local AutoFarmLabel = ScriptsTab:CreateLabel("Auto Farm - Automated Level Farming")
+
+-- Paper Auto Farm Script Button
+local PaperFarmButton = ScriptsTab:CreateButton({
+   Name = "Execute Paper Auto Farm",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "Loading Script",
+         Content = "Loading Paper Auto Farm...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      
+      local success, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/forrpus3/scripts/refs/heads/main/paper%20auto%20farm'))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "Success!",
+            Content = "Paper Auto Farm executed successfully!",
+            Duration = 5,
+            Image = 4483362458,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Failed to load Paper Auto Farm: " .. tostring(err),
+            Duration = 5,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+local PaperFarmLabel = ScriptsTab:CreateLabel("Paper Auto Farm - Automated Paper Collection")
+
+-- Perfect Launch Script Button
+local PerfectLaunchButton = ScriptsTab:CreateButton({
+   Name = "Execute Perfect Launch",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "Loading Script",
+         Content = "Loading Perfect Launch...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      
+      local success, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/forrpus3/scripts/refs/heads/main/perfectLaunch'))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "Success!",
+            Content = "Perfect Launch executed successfully!",
+            Duration = 5,
+            Image = 4483362458,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Failed to load Perfect Launch: " .. tostring(err),
+            Duration = 5,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+local PerfectLaunchLabel = ScriptsTab:CreateLabel("Perfect Launch - Optimized Launch Mechanics")
+
+-- Final Stand Aimbot Script Button
+local AimbotButton = ScriptsTab:CreateButton({
+   Name = "Execute Final Stand Aimbot",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "Loading Script",
+         Content = "Loading Final Stand Aimbot...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      
+      local success, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/forrpus3/scripts/refs/heads/main/final%20stand%20aimbot%20script'))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "Success!",
+            Content = "Final Stand Aimbot executed successfully!",
+            Duration = 5,
+            Image = 4483362458,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Failed to load Final Stand Aimbot: " .. tostring(err),
+            Duration = 5,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+local AimbotLabel = ScriptsTab:CreateLabel("Final Stand Aimbot - Enhanced Targeting System")
+
+-- Player Tab
+local PlayerSection = PlayerTab:CreateSection("Player Modifications")
+
+local WalkSpeedSlider = PlayerTab:CreateSlider({
+   Name = "Walk Speed",
+   Range = {16, 100},
+   Increment = 1,
+   Suffix = " Speed",
+   CurrentValue = 16,
+   Flag = "WalkSpeed",
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+   end,
+})
+
+local JumpPowerSlider = PlayerTab:CreateSlider({
+   Name = "Jump Power",
+   Range = {50, 200},
+   Increment = 1,
+   Suffix = " Power",
+   CurrentValue = 50,
+   Flag = "JumpPower",
+   Callback = function(Value)
+      game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+   end,
+})
+
+local InfiniteJumpToggle = PlayerTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = "InfiniteJump",
+   Callback = function(Value)
+      getgenv().InfiniteJump = Value
+      
+      if Value then
+         game:GetService("UserInputService").JumpRequest:connect(function()
+            if getgenv().InfiniteJump then
+               game.Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid'):ChangeState("Jumping")
+            end
+         end)
+      end
+   end,
+})
+
+local NoClipToggle = PlayerTab:CreateToggle({
+   Name = "No Clip",
+   CurrentValue = false,
+   Flag = "NoClip",
+   Callback = function(Value)
+      getgenv().NoClip = Value
+      
+      game:GetService("RunService").Stepped:connect(function()
+         if getgenv().NoClip then
+            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+               if v:IsA("BasePart") then
+                  v.CanCollide = false
+               end
+            end
+         end
+      end)
+   end,
+})
+
+local FlyToggle = PlayerTab:CreateToggle({
+   Name = "Fly",
+   CurrentValue = false,
+   Flag = "Fly",
+   Callback = function(Value)
+      print("Fly: " .. tostring(Value))
+      -- Add your fly script here
+   end,
+})
+
+-- Misc Tab
+local MiscSection = MiscTab:CreateSection("Miscellaneous")
+
+local ConfigToggle = MiscTab:CreateToggle({
+   Name = "Auto Save Config",
+   CurrentValue = true,
+   Flag = "AutoSaveConfig",
+   Callback = function(Value)
+      print("Auto Save: " .. tostring(Value))
+   end,
+})
+
+local NotificationsToggle = MiscTab:CreateToggle({
+   Name = "Show Notifications",
+   CurrentValue = true,
+   Flag = "ShowNotifications",
+   Callback = function(Value)
+      print("Notifications: " .. tostring(Value))
+   end,
+})
+
+local ThemeDropdown = MiscTab:CreateDropdown({
+   Name = "UI Theme",
+   Options = {"Default", "Amethyst", "Light"},
+   CurrentOption = {"Default"},
+   MultipleOptions = false,
+   Flag = "Theme",
+   Callback = function(Option)
+      print("Theme changed to: " .. Option)
+   end,
+})
+
+local MiscParagraph = MiscTab:CreateParagraph({
+   Title = "Rayfield Hub Info",
+   Content = "This is a universal script hub using Rayfield Interface Suite. Add your own scripts by creating buttons with loadstring links!"
+})
+
+local DestroyButton = MiscTab:CreateButton({
+   Name = "Destroy Interface",
+   Callback = function()
+      Rayfield:Destroy()
+   end,
+})
+
+print("Rayfield Script Hub loaded successfully!")
