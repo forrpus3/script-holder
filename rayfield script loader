@@ -4,8 +4,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 -- Create Window
 local Window = Rayfield:CreateWindow({
    Name = "Rayfield Script Hub",
-   LoadingTitle = "Rayfield Interface Suite",
-   LoadingSubtitle = "by Sirius",
+   LoadingTitle = "Realscrpts",
+   LoadingSubtitle = "by o.goddy",
    ConfigurationSaving = {
       Enabled = true,
       FolderName = nil,
@@ -31,6 +31,7 @@ local Window = Rayfield:CreateWindow({
 -- Create Tabs
 local ScriptsTab = Window:CreateTab("📜 Scripts", 4483362458)
 local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
+local DiscordTab = Window:CreateTab("💬 Discord", 4483362458)
 local MiscTab = Window:CreateTab("⚙️ Misc", 4483362458)
 
 -- Scripts Tab
@@ -260,6 +261,29 @@ local RetroBreachButton = ScriptsTab:CreateButton({
 })
 
 local RetroBreachLabel = ScriptsTab:CreateLabel("Retro Breach ESP - Item & Player ESP with Aimbot")
+
+-- Discord Tab
+local DiscordSection = DiscordTab:CreateSection("Join Our Community")
+
+local DiscordButton = DiscordTab:CreateButton({
+   Name = "Copy Discord Invite Link",
+   Callback = function()
+      setclipboard("https://discord.gg/uqkvDaX3kH")
+      Rayfield:Notify({
+         Title = "Discord Link Copied!",
+         Content = "The Discord invite link has been copied to your clipboard!",
+         Duration = 5,
+         Image = 4483362458,
+      })
+   end,
+})
+
+local DiscordLabel = DiscordTab:CreateLabel("Click the button above to copy our Discord invite link")
+
+local DiscordParagraph = DiscordTab:CreateParagraph({
+   Title = "Why Join Our Discord?",
+   Content = "Join our Discord server to get updates on new scripts, report bugs, request features, and connect with other users!"
+})
 
 -- Player Tab
 local PlayerSection = PlayerTab:CreateSection("Player Modifications")
