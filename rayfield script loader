@@ -226,6 +226,41 @@ local AimbotButton = ScriptsTab:CreateButton({
 
 local AimbotLabel = ScriptsTab:CreateLabel("Final Stand Aimbot - Enhanced Targeting System")
 
+-- Retro Breach ESP Script Button
+local RetroBreachButton = ScriptsTab:CreateButton({
+   Name = "Execute Retro Breach ESP",
+   Callback = function()
+      Rayfield:Notify({
+         Title = "Loading Script",
+         Content = "Loading Retro Breach ESP System...",
+         Duration = 3,
+         Image = 4483362458,
+      })
+      
+      local success, err = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/forrpus3/scripts/refs/heads/main/retroBreach'))()
+      end)
+      
+      if success then
+         Rayfield:Notify({
+            Title = "Success!",
+            Content = "Retro Breach ESP executed successfully!",
+            Duration = 5,
+            Image = 4483362458,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Failed to load Retro Breach ESP: " .. tostring(err),
+            Duration = 5,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
+local RetroBreachLabel = ScriptsTab:CreateLabel("Retro Breach ESP - Item & Player ESP with Aimbot")
+
 -- Player Tab
 local PlayerSection = PlayerTab:CreateSection("Player Modifications")
 
